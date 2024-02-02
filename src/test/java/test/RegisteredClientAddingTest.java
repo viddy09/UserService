@@ -23,7 +23,7 @@ public class RegisteredClientAddingTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Test
-    @Commit
+    //@Commit
     void addNewRegisteredClient() {
         RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("client")
