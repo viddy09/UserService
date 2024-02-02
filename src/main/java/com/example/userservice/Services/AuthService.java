@@ -11,14 +11,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.MacAlgorithm;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMapAdapter;
 
 import javax.crypto.SecretKey;
-import java.net.http.HttpHeaders;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +28,10 @@ public class AuthService {
     private final SessionRepository sessionRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    //JWT sign algo and key
+    private MacAlgorithm alg = Jwts.SIG.HS256;
+    private SecretKey key = alg.key().build();
+
     public AuthService(UserRepository userRepository,
                        SessionRepository sessionRepository,
                        BCryptPasswordEncoder bCryptPasswordEncoder){
@@ -39,73 +39,89 @@ public class AuthService {
         this.sessionRepository = sessionRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
-    public ResponseEntity<UserDTO> login(String email, String password){
+
+    //User authentication and providing token to user
+    public String login(String email, String password) throws Exception{
         Optional<User> user = userRepository.findByEmail(email);
         if(user.isEmpty()){
-            return null;
+            throw new Exception("You need to SignUp before Login");
         }
+
+        //Authentication using Bcrypt
         User user1 = user.get();
-        if(!bCryptPasswordEncoder.matches(user1.getPassword(),password)){
-            return null;
+        if(!bCryptPasswordEncoder.matches(password,user1.getPassword())){
+            throw new Exception("Please Enter Correct Password");
         }
+
+        //Token generation
+        String token = this.getToken(user1);
+
+        //Create Session
+        this.createSessionDetails(user1, token);
+
+        return token;
+    }
+
+    private String getToken(User user){
+        //PayLoad of token
         Map<String, Object> jsonforJWT = new HashMap<>();
-        jsonforJWT.put("email", user1.getEmail());
-        jsonforJWT.put("roles", user1.getRoles());
+        jsonforJWT.put("email", user.getEmail());
+        //jsonforJWT.put("roles", user.getRoles());
         jsonforJWT.put("expiryAt", new Date());
         jsonforJWT.put("createdAt", new Date());
 
-        MacAlgorithm alg = Jwts.SIG.HS256;
-        SecretKey key = alg.key().build();
+        //Token generation
+        String token = Jwts.builder().claims(jsonforJWT).signWith(this.key,this.alg).compact();
 
-        String token = Jwts.builder().claims(jsonforJWT).signWith(key,alg).compact();
+        return token;
+    }
 
+    private void createSessionDetails(User user, String token){
         Session session = new Session();
         session.setSessionStatus(SessionStatus.ACTIVE);
-        session.setUser(user1);
+        session.setUser(user);
         session.setToken(token);
         session.setExpiredAt(new Date());
         sessionRepository.save(session);
-
-        UserDTO userDTO = user1.from(user1);
-
-        MultiValueMapAdapter<String,String> headers = new MultiValueMapAdapter<>(new HashMap<>());
-        headers.add("content","auth-token"+token);
-
-        ResponseEntity<UserDTO> responseEntity = new ResponseEntity<>(userDTO, headers, HttpStatus
-                .OK);
-        return responseEntity;
     }
-    public UserDTO signup(String email, String password){
+
+    public UserDTO signup(String email, String password) throws Exception {
         Optional<User> user = userRepository.findByEmail(email);
         if(!user.isEmpty()){
-            return null;
+            throw new Exception("User is already registered");
         }
+
+        //Create new user
         User user1 = new User();
         user1.setEmail(email);
+        //Password Encrypted using BCrypt
         user1.setPassword(bCryptPasswordEncoder.encode(password));
         User user2 = userRepository.save(user1);
         return user1.from(user2);
     }
-    public ResponseEntity<Void> logOut(String token, String email){
+
+
+    public void logOut(String token, String email) throws Exception{
         Optional<Session> session = sessionRepository.findByTokenAndUser_Email(token,email);
         if(session.isEmpty()){
-            return null;
+            throw new Exception("UnAuthorized Request");
         }
         Session session1 = session.get();
         session1.setSessionStatus(SessionStatus.ENDED);
         sessionRepository.save(session1);
-        return ResponseEntity.ok().build();
     }
-    public SessionStatus validateToken(String token, String email){
+
+    public SessionStatus validateToken(String token, String email) throws Exception {
         Optional<Session> session = sessionRepository.findByTokenAndUser_Email(token,email);
         if(session.isEmpty()){
-            return null;
+            throw new Exception("Something went wrong. Try login in again");
         }
 
-        MacAlgorithm alg = Jwts.SIG.HS256;
-        SecretKey key = alg.key().build();
+        Claims claims = Jwts.parser().verifyWith(this.key).build().parseSignedClaims(token).getPayload();
 
-        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+         /*if(exiprytime > currentdate) {
+
+         }*/
         return SessionStatus.ACTIVE;
 
     }

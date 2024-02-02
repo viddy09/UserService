@@ -21,19 +21,21 @@ public class UserService {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
-    public UserDTO getUserDetails(Long userId) {
+    public UserDTO getUserDetails(Long userId) throws Exception {
         Optional<User> userOptional = userRepository.findById(userId);
-
+        if(userOptional.isEmpty()){
+            throw new Exception("User not found!!!");
+        }
         return userOptional.map(User::from).orElse(null);
 
     }
 
-    public UserDTO setUserRoles(Long userId, List<Long> roleIds) {
+    public UserDTO setUserRoles(Long userId, List<Long> roleIds) throws Exception {
         Optional<User> userOptional = userRepository.findById(userId);
         List<Role> roles = roleRepository.findAllByIdIn(roleIds);
 
         if (userOptional.isEmpty()) {
-            return null;
+            throw new Exception("User not found!!!");
         }
 
         User user = userOptional.get();

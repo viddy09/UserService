@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/*
+* RoleController dealing with the request of creating/modifying/deleting roles
+* */
 @RestController
 @RequestMapping("/roles")
 public class RoleController {
@@ -19,9 +22,15 @@ public class RoleController {
         this.roleService = roleService;
     }
 
+    //New roles creation
     @PostMapping("")
-    public ResponseEntity<Role> createRole(@RequestBody CreateRoleRequestDto request) {
-        Role role = roleService.createRole(request.getRole());
-        return new ResponseEntity<>(role, HttpStatus.OK);
+    public ResponseEntity<Role> createRole(@RequestBody CreateRoleRequestDto request) throws Exception{
+        try{
+            Role role = roleService.createRole(request.getRole());
+            return new ResponseEntity<>(role, HttpStatus.OK);
+        }
+        catch (Exception e){
+            throw new RuntimeException("Role creation unsuccessful");
+        }
     }
 }

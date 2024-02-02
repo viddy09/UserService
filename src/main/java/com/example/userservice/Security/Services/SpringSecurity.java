@@ -13,4 +13,12 @@ public class SpringSecurity {
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
     }
+
+    /*@Bean
+    public SecurityFilterChain filteringCriteria(HttpSecurity http) throws Exception {
+        http.cors().disable();
+        http.csrf().disable();
+        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+        return http.build();
+    }*/
 }
