@@ -1,4 +1,4 @@
-package com.example.userservice.Services;
+package com.example.userservice.Services.IntegrationTesting;
 
 import com.example.userservice.DTOs.UserDTO;
 import com.example.userservice.Models.Session;
@@ -6,56 +6,63 @@ import com.example.userservice.Models.SessionStatus;
 import com.example.userservice.Models.User;
 import com.example.userservice.Repositories.SessionRepository;
 import com.example.userservice.Repositories.UserRepository;
+import com.example.userservice.Services.AuthService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.annotation.Commit;
 
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class AuthServiceTest {
+class AuthServiceIntegrationTest {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    SessionRepository sessionRepository;
+    private SessionRepository sessionRepository;
 
     @Autowired
-    AuthService authService;
+    private AuthService authService;
 
     @Autowired
-    BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     //@Commit
     @Test
+    @Transactional
     void testSignUp() throws Exception {
         User user = new User();
         user.setEmail("testSignUp@gmail.com");
         user.setPassword(bCryptPasswordEncoder.encode("testPassword"));
         UserDTO userDTO = authService.signup(user.getEmail(), user.getPassword());
 
-        assertNotEquals (userDTO.getEmail(), user.getEmail());
+        assertSame (userDTO.getEmail(), user.getEmail());
     }
 
     @Test
+    @Transactional
     void testValidateToken() throws Exception{
         //New user signup
         UserDTO userDTO = authService.signup("testSignUp1@gmail.com", "TheTestPassword");
         //Getting token
         String token = authService.login(userDTO.getEmail(), "TheTestPassword");
         //Validating token
-        SessionStatus sessionStatus =  authService.validateToken(token, userDTO.getEmail());
-        assert(sessionStatus.equals(SessionStatus.ACTIVE));
+        try{
+            authService.validateToken(token, userDTO.getEmail());
+            assert (true);
+        }
+        catch (Exception e){
+            assert (false);
+        }
     }
 
     @Test
+    @Transactional
     void testLogin() throws Exception{
         UserDTO userDTO = authService.signup("testSignUp2@gmail.com", "Password");
         //Getting token
@@ -65,6 +72,7 @@ public class AuthServiceTest {
     }
 
     @Test
+    @Transactional
     void testUserWithWrongPassword() throws Exception{
         UserDTO userDTO = authService.signup("testSignUp3@gmail.com", "Password");
         //Getting token
@@ -77,6 +85,7 @@ public class AuthServiceTest {
     }
 
     @Test
+    @Transactional
     void testLogOut() throws Exception{
         UserDTO userDTO = authService.signup("testSignUp4@gmail.com", "Password");
         String token = authService.login(userDTO.getEmail(), "Password");
@@ -88,4 +97,24 @@ public class AuthServiceTest {
         }
         assertSame(SessionStatus.ENDED,sessionStatus);
     }
+
+    @Test
+    @Transactional
+    void testInvalidToken() throws Exception{
+        //New user signup
+        UserDTO userDTO = authService.signup("testSignUp12@gmail.com", "TheTestPassword");
+        //Getting token
+        String token = authService.login(userDTO.getEmail(), "TheTestPassword");
+        //Validating token
+        try{
+            token += "Invalid";
+            authService.validateToken(token, userDTO.getEmail());
+            assert (false);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            assertEquals("INVALID Token!!!!",e.getMessage());
+        }
+    }
+
 }

@@ -1,9 +1,7 @@
 package com.example.userservice.Controllers;
 
-import com.example.userservice.Models.SessionStatus;
 import com.example.userservice.Services.AuthService;
 import com.example.userservice.DTOs.*;
-import com.example.userservice.Utility.Constants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMapAdapter;
@@ -79,12 +77,20 @@ public class AuthController {
 
     //Resource services will validate token before processing user request
     @PostMapping("/validate")
-    public ResponseEntity<SessionStatus> validateToken(@RequestBody ValidateTokenRequestDTO request) throws Exception {
+    public ResponseEntity<ValidateTokenResponseDTO> validateToken(@RequestBody ValidateTokenRequestDTO request) throws Exception {
+        ResponseEntity<ValidateTokenResponseDTO> responseEntity;
+        ValidateTokenResponseDTO validateTokenResponseDTO;
         try {
-            return new ResponseEntity<>(authService.validateToken(request.getToken(),request.getEmail()),HttpStatus.OK);
+            authService.validateToken(request.getToken(),request.getEmail());
+            validateTokenResponseDTO = new ValidateTokenResponseDTO("Token is Valid", "Valid");
+            responseEntity = new ResponseEntity<>(validateTokenResponseDTO, HttpStatus.OK);
+            return responseEntity;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            validateTokenResponseDTO = new ValidateTokenResponseDTO(e.getMessage(), "InValid");;
         }
+        responseEntity = new ResponseEntity<>(validateTokenResponseDTO, HttpStatus.OK);
+        return responseEntity;
+
     }
 
 

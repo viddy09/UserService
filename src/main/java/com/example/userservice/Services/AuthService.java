@@ -111,18 +111,16 @@ public class AuthService {
         sessionRepository.save(session1);
     }
 
-    public SessionStatus validateToken(String token, String email) throws Exception {
-        Optional<Session> session = sessionRepository.findByTokenAndUser_Email(token,email);
-        if(session.isEmpty()){
-            throw new Exception("Something went wrong. Try login in again");
+    public void validateToken(String token, String email) throws Exception {
+        try{
+            Claims claims = Jwts.parser().verifyWith(this.key).build().parseSignedClaims(token).getPayload();
         }
-
-        Claims claims = Jwts.parser().verifyWith(this.key).build().parseSignedClaims(token).getPayload();
-
+        catch (Exception e){
+            throw new Exception("INVALID Token!!!!");
+        }
          /*if(exiprytime > currentdate) {
 
          }*/
-        return SessionStatus.ACTIVE;
 
     }
 
