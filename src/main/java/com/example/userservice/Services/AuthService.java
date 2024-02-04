@@ -1,6 +1,8 @@
 package com.example.userservice.Services;
 
 import com.example.userservice.DTOs.UserDTO;
+import com.example.userservice.DTOs.ValidateTokenResponseDTO;
+import com.example.userservice.Models.Role;
 import com.example.userservice.Models.Session;
 import com.example.userservice.Models.SessionStatus;
 import com.example.userservice.Models.User;
@@ -15,10 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Getter
@@ -66,7 +65,7 @@ public class AuthService {
         //PayLoad of token
         Map<String, Object> jsonforJWT = new HashMap<>();
         jsonforJWT.put("email", user.getEmail());
-        //jsonforJWT.put("roles", user.getRoles());
+        jsonforJWT.put("roles", user.getRoles());
         jsonforJWT.put("expiryAt", new Date());
         jsonforJWT.put("createdAt", new Date());
 
@@ -111,17 +110,24 @@ public class AuthService {
         sessionRepository.save(session1);
     }
 
-    public void validateToken(String token, String email) throws Exception {
+    public ValidateTokenResponseDTO validateToken(String token, String email) throws Exception {
+        ValidateTokenResponseDTO validateTokenResponseDTO;
         try{
             Claims claims = Jwts.parser().verifyWith(this.key).build().parseSignedClaims(token).getPayload();
+            validateTokenResponseDTO =  new ValidateTokenResponseDTO("Token is Valid", "Valid");
+            validateTokenResponseDTO.setEmail((String) claims.get("email"));
+            validateTokenResponseDTO.setRoles((ArrayList<Role>) claims.get("roles"));
+            return validateTokenResponseDTO;
         }
         catch (Exception e){
-            throw new Exception("INVALID Token!!!!");
+            //throw new Exception("INVALID Token!!!!");
+            validateTokenResponseDTO =  new ValidateTokenResponseDTO("INVALID Token!!!!", "InValid");
+//            validateTokenResponseDTO =  new ValidateTokenResponseDTO(e.getMessage(), "InValid");
         }
          /*if(exiprytime > currentdate) {
 
          }*/
-
+        return validateTokenResponseDTO;
     }
 
 }

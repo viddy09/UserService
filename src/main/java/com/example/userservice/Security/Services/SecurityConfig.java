@@ -39,8 +39,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
-@Configuration
-@EnableWebSecurity
+/*@Configuration
+@EnableWebSecurity*/
 public class SecurityConfig {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     public SecurityConfig(BCryptPasswordEncoder bCryptPasswordEncoder){

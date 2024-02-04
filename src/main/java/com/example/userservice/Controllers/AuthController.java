@@ -78,17 +78,15 @@ public class AuthController {
     //Resource services will validate token before processing user request
     @PostMapping("/validate")
     public ResponseEntity<ValidateTokenResponseDTO> validateToken(@RequestBody ValidateTokenRequestDTO request) throws Exception {
+        System.out.println("Inside Validate Token===");
         ResponseEntity<ValidateTokenResponseDTO> responseEntity;
         ValidateTokenResponseDTO validateTokenResponseDTO;
         try {
-            authService.validateToken(request.getToken(),request.getEmail());
-            validateTokenResponseDTO = new ValidateTokenResponseDTO("Token is Valid", "Valid");
+            validateTokenResponseDTO = authService.validateToken(request.getToken(),request.getEmail());
             responseEntity = new ResponseEntity<>(validateTokenResponseDTO, HttpStatus.OK);
-            return responseEntity;
         } catch (Exception e) {
-            validateTokenResponseDTO = new ValidateTokenResponseDTO(e.getMessage(), "InValid");;
+            responseEntity = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        responseEntity = new ResponseEntity<>(validateTokenResponseDTO, HttpStatus.OK);
         return responseEntity;
 
     }
