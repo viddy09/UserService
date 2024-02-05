@@ -1,4 +1,4 @@
-# User_Management (UserService)
+# UserService
 	UserService Deals with the authenticationa and authorization requests with the help of Spring OAuth.
 	Provide API to manage roles and user details such as user_id, email, password.
 	End user needs to signup and login to access the resources from other services
