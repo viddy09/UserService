@@ -1,6 +1,6 @@
-package com.example.userservice.Security.Repository;
+package com.example.userservice.Security.JPABasedOAuth.Repository;
 
-import com.example.userservice.Security.Models.AuthorizationConsent;
+import com.example.userservice.Security.JPABasedOAuth.Models.AuthorizationConsent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

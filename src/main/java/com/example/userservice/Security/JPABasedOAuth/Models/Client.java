@@ -1,4 +1,4 @@
-package com.example.userservice.Security.Models;
+package com.example.userservice.Security.JPABasedOAuth.Models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

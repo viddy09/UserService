@@ -1,4 +1,4 @@
-package com.example.userservice.Security.Models;
+package com.example.userservice.Security.JPABasedOAuth.Models;
 
 /*The OAuth consent is a prompt that
  informs users about who is requesting access to their

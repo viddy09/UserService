@@ -1,6 +1,7 @@
 package com.example.userservice.Services.IntegrationTesting;
 
 import com.example.userservice.DTOs.UserDTO;
+import com.example.userservice.DTOs.ValidateTokenResponseDTO;
 import com.example.userservice.Models.Session;
 import com.example.userservice.Models.SessionStatus;
 import com.example.userservice.Models.User;
@@ -106,7 +107,15 @@ class AuthServiceIntegrationTest {
         //Getting token
         String token = authService.login(userDTO.getEmail(), "TheTestPassword");
         //Validating token
-        try{
+        token += "Invalid";
+        ValidateTokenResponseDTO validateTokenResponseDTO = authService.validateToken(token, userDTO.getEmail());
+        if(validateTokenResponseDTO.getMessage().equals("INVALID Token!!!!")){
+            assert (true);
+        }
+        else {
+            assert (false);
+        }
+        /*try{
             token += "Invalid";
             authService.validateToken(token, userDTO.getEmail());
             assert (false);
@@ -114,7 +123,7 @@ class AuthServiceIntegrationTest {
         catch (Exception e){
             System.out.println(e.getMessage());
             assertEquals("INVALID Token!!!!",e.getMessage());
-        }
+        }*/
     }
 
 }

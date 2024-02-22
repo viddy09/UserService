@@ -1,11 +1,11 @@
-package com.example.userservice.Security.Repository;
+package com.example.userservice.Security.JPABasedOAuth.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.example.userservice.Security.Models.Client;
+import com.example.userservice.Security.JPABasedOAuth.Models.Client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;

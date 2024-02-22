@@ -1,11 +1,10 @@
-package com.example.userservice.Security.Services;
+package com.example.userservice.Security.OAuth_User;
 
 import com.example.userservice.Models.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Optional;
 
 public class CustomSpringUserDetails implements UserDetails {
     private User user;

@@ -1,8 +1,7 @@
-package com.example.userservice.Security.Services;
+package com.example.userservice.Security.OAuth_User;
 
 import com.example.userservice.Models.User;
 import com.example.userservice.Repositories.UserRepository;
-import com.example.userservice.Security.Services.CustomSpringUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
